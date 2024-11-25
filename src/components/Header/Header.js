@@ -3,7 +3,7 @@ import "./Header.css";
 
 export default function Header() {
   return (
-    <header className="header navbar navbar-expand-lg navbar-light bg-light px-3">
+    <header className="header navbar navbar-expand-lg py-4 navbar-light bg-light px-3">
       <Link to="/" className="navbar-brand">
         Veer
       </Link>
