@@ -1,6 +1,8 @@
 import "./SignupForm.css";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function SignupForm() {
   const {
@@ -9,20 +11,39 @@ export default function SignupForm() {
     formState: { errors },
   } = useForm();
 
+  const navigate = useNavigate();
+  const [message, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleSignup = async (data) => {
+    setErrorMessage("");
+    setSuccessMessage("");
     try {
       const response = await axios.post(
         " http://localhost:5000/api/users/register",
         data
       );
+      setSuccessMessage("Signup successful! Redirecting to Login...");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
       console.log("signup successful", response.data);
     } catch (err) {
       if (err.response) {
+        const errMsg = err.response.data.message.toLowerCase();
+        if (errMsg === "email already exists") {
+          setErrorMessage("Email Already Exists");
+        } else {
+          setErrorMessage("Login Failed, Try again");
+        }
+        console.dir(err.response.data.message);
+        //  setErrorMessage("")
         console.error("Error response:", err.response.data);
       } else if (err.request) {
-        console.error("No response received:", err.request);
+        setErrorMessage("No response from server. Please try again later.");
       } else {
-        console.error("Error", err.message);
+        setErrorMessage("An unexpected Error, try again");
       }
     }
   };
@@ -30,6 +51,12 @@ export default function SignupForm() {
   return (
     <div className="signup-page container mt-5 shadow bg-body rounded">
       <h2 className="text-center mb-4">Sign Up</h2>
+      {message && (
+        <div className="alert alert-success text-center">{message}</div>
+      )}
+      {errorMessage && (
+        <div class="alert alert-danger text-center">{errorMessage}</div>
+      )}
       <form
         onSubmit={handleSubmit(handleSignup)}
         className="mx-auto"
